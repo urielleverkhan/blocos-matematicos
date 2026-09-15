@@ -65,7 +65,6 @@
     <div class="feedback" [class.err]="feedbackError">{{ feedback }}</div>
   } @else {
     <p class="prompt">{{ subtraction.a }} − {{ subtraction.b }} = ?</p>
-    <app-shelf [counts]="subtractionCounts" [interactive]="true" (blockRemoved)="subtractPlaceFromShelf($event)" />
     <div class="written-addition">
       <div class="addition-equation">{{ subtraction.a }} − {{ subtraction.b }} = ?</div>
       @for (line of subtractionPreparedLines; track $index; let index = $index) {
@@ -78,6 +77,12 @@
       @if (subtractionDone) {
         <div class="addition-line total">{{ subtraction.a }} − {{ subtraction.b }} = {{ subtraction.a - subtraction.b }}</div>
       }
+      <div class="answer-builder">
+        <div class="answer-builder-label">Retire os blocos da resposta de {{ subtractionStepLabel }}:</div>
+        <div class="answer-shelf">
+          <app-shelf [counts]="subtractionCounts" [interactive]="true" (blockRemoved)="subtractPlaceFromShelf($event)" />
+        </div>
+      </div>
     </div>
     <div class="controls">
       @if (!subtractionDone) {

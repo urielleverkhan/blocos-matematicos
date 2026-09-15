@@ -29,6 +29,8 @@ export class ExerciseComponent implements OnChanges {
   subtraction = { a: 0, b: 0, minuend: [] as number[], digitsB: [] as number[], step: 0, borrowed: false };
   feedback = '';
   feedbackError = false;
+  celebrationVisible = false;
+  readonly celebrationStars = [0, 1, 2, 3, 4, 5, 6, 7];
   readonly buildPlaces = places;
 
   ngOnChanges(): void {
@@ -69,7 +71,11 @@ export class ExerciseComponent implements OnChanges {
   checkBuild(): void {
     this.feedbackError = this.buildTotal !== this.build.target;
     this.feedback = this.buildTotal === this.build.target ? 'Isso aí! Você montou certinho! 🎉' : this.buildTotal > this.build.target ? 'Passou um pouquinho! Tire alguns blocos.' : 'Quase lá! Ainda falta um pouco.';
-    if (!this.feedbackError) { this.starEarned.emit(); setTimeout(() => this.newBuild(), 1000); }
+    if (!this.feedbackError) {
+      this.celebrate();
+      this.starEarned.emit();
+      setTimeout(() => this.newBuild(), 1000);
+    }
   }
   joinAdditionPlace(): void {
     const index = this.addition.step;
@@ -79,14 +85,14 @@ export class ExerciseComponent implements OnChanges {
     this.addition.step++;
     if (this.addition.step === this.addition.digitsA.length && this.addition.carry) this.addition.result.push(this.addition.carry);
   }
-  nextAddition(): void { this.starEarned.emit(); this.newAddition(); }
+  nextAddition(): void { this.celebrate(); this.starEarned.emit(); this.newAddition(); }
   subtractPlace(): void {
     const index = this.subtraction.step;
     if (this.subtraction.minuend[index] < this.subtraction.digitsB[index]) this.borrow(index);
     this.subtraction.minuend[index] -= this.subtraction.digitsB[index];
     this.subtraction.step++;
   }
-  nextSubtraction(): void { this.starEarned.emit(); this.newSubtraction(); }
+  nextSubtraction(): void { this.celebrate(); this.starEarned.emit(); this.newSubtraction(); }
 
   private borrow(index: number): void {
     let source = index + 1;
@@ -128,5 +134,9 @@ export class ExerciseComponent implements OnChanges {
   private normalizeBuild(): void {
     const total = this.buildTotal;
     this.build.counts = this.countsOf(total);
+  }
+  private celebrate(): void {
+    this.celebrationVisible = true;
+    setTimeout(() => this.celebrationVisible = false, 1100);
   }
 }

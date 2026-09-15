@@ -1,4 +1,11 @@
 <section class="panel">
+  @if (celebrationVisible) {
+    <div class="celebration" aria-hidden="true">
+      @for (star of celebrationStars; track star) {
+        <span class="rising-star" [style.--star-index]="star">★</span>
+      }
+    </div>
+  }
   @if (mode === 'build') {
     <p class="prompt">Monte o número <span class="target-num">{{ build.target }}</span> com os blocos!</p>
     <app-shelf [counts]="build.counts" />

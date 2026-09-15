@@ -9,6 +9,17 @@
 .btn.success { background:var(--success); box-shadow:0 4px 0 #3E8F48; }
 .feedback { min-height:24px; margin-top:10px; color:var(--success); text-align:center; font:700 16px 'Baloo 2',sans-serif; }
 .feedback.err { color:var(--coral-dark); }
+.written-addition { margin:0 auto; padding:12px; border:2px dashed var(--wood-light); border-radius:12px; background:#FFF0DA; text-align:center; }
+.addition-equation { margin-bottom:8px; color:var(--coral-dark); font:700 20px 'Baloo 2',sans-serif; }
+.addition-line { margin:5px 0; color:var(--wood-dark); font:600 17px 'Baloo 2',sans-serif; }
+.addition-line span { color:var(--coral-dark); }
+.addition-line.answered { color:var(--success); }
+.addition-line.recombination { margin-top:12px; color:var(--coral-dark); font-size:19px; }
+.addition-line.total { color:var(--success); font-size:20px; }
+.answer-builder { margin-top:12px; padding-top:10px; border-top:2px dashed var(--wood-light); }
+.answer-builder-label { color:var(--wood-dark); font:700 14px 'Nunito',sans-serif; text-align:center; }
+.answer-shelf { display:block; min-height:150px; margin-top:8px; }
+.answer-controls { margin-top:10px; }
 .celebration { position:absolute; inset:0; z-index:2; pointer-events:none; }
 .rising-star { position:absolute; bottom:-18px; left:calc(8% + var(--star-index) * 12%); color:var(--gold); font-size:22px; text-shadow:0 2px 0 var(--gold-edge); animation:rise-star 1s ease-out forwards; animation-delay:calc(var(--star-index) * 35ms); }
 @keyframes rise-star {

@@ -22,16 +22,47 @@
     <div class="feedback" [class.err]="feedbackError">{{ feedback }}</div>
   } @else if (mode === 'add') {
     <p class="prompt">{{ addition.a }} + {{ addition.b }} = ?</p>
-    <app-shelf [counts]="additionCounts" />
-    <app-trail [lines]="additionLines" />
+    <div class="written-addition">
+      <div class="addition-equation">{{ addition.a }} + {{ addition.b }} = ?</div>
+      @for (line of additionPreparedLines; track $index; let index = $index) {
+        @if (index < addition.step) {
+          <div class="addition-line answered">{{ line }} = {{ (addition.digitsA[addition.digitsA.length - 1 - index] + addition.digitsB[addition.digitsB.length - 1 - index]) * places[addition.digitsA.length - 1 - index].value }}</div>
+        } @else {
+          <div class="addition-line">{{ line }} = <span>?</span></div>
+        }
+      }
+      @if (addition.step >= addition.digitsA.length) {
+        <div class="addition-line recombination">{{ additionPartialValues.join(' + ') }} = <span>{{ additionDone ? addition.a + addition.b : '?' }}</span></div>
+      }
+      @if (additionDone) {
+        <div class="addition-line total">{{ addition.a }} + {{ addition.b }} = {{ addition.a + addition.b }}</div>
+      } @else {
+        <div class="answer-builder">
+          <div class="answer-builder-label">Monte a resposta de {{ additionStepLabel }}:</div>
+          <div class="answer-shelf">
+            <app-shelf [counts]="answerShelfCounts"></app-shelf>
+          </div>
+          <div class="controls answer-controls">
+            @for (place of buildPlaces; track place.key) {
+              @if ((addition.step < addition.digitsA.length && place.key === additionCurrentPlace) ||
+                   (addition.step >= addition.digitsA.length && place.value <= additionPlaceLimit)) {
+                <button class="btn secondary" (click)="addAdditionAnswer(place.key)">+1 {{ place.label }}</button>
+              }
+            }
+            <button class="btn warn" (click)="resetAdditionAnswer()">Recomeçar</button>
+          </div>
+        </div>
+      }
+    </div>
     <div class="controls">
       @if (!additionDone) {
-        <button class="btn" (click)="joinAdditionPlace()">Juntar {{ addition.step === 0 ? 'unidades' : addition.step === 1 ? 'dezenas' : addition.step === 2 ? 'centenas' : 'milhares' }}</button>
+        <button class="btn" (click)="checkAdditionAnswer()">Conferir resposta</button>
       } @else {
         <button class="btn success" (click)="nextAddition()">Próxima conta →</button>
       }
       <button class="btn secondary" (click)="newAddition()">Nova conta</button>
     </div>
+    <div class="feedback" [class.err]="feedbackError">{{ feedback }}</div>
   } @else {
     <p class="prompt">{{ subtraction.a }} − {{ subtraction.b }} = ?</p>
     <app-shelf [counts]="subtractionCounts" />

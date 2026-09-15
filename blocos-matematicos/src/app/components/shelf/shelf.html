@@ -22,6 +22,7 @@
           } @else {
             <span class="block"
               [class.bar]="column.kind === 'ten'"
+              [class.carry-bar]="column.kind === 'ten' && column.carry && $index >= column.count - column.carry"
               [class.plate]="column.kind === 'hundred'"></span>
           }
         }

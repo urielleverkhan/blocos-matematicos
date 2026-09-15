@@ -30,18 +30,70 @@ export class ExerciseComponent implements OnChanges {
   feedback = '';
   feedbackError = false;
   celebrationVisible = false;
+  additionInput = '';
+  additionAnswer: Counts = { units: 0, tens: 0 };
   readonly celebrationStars = [0, 1, 2, 3, 4, 5, 6, 7];
+  readonly places = places;
   readonly buildPlaces = places;
 
   ngOnChanges(): void {
     this.feedback = '';
+    this.additionInput = '';
+    this.additionAnswer = { units: 0, tens: 0 };
     if (this.mode === 'build') this.newBuild();
     if (this.mode === 'add') this.newAddition();
     if (this.mode === 'sub') this.newSubtraction();
   }
 
   get buildTotal(): number { return this.valueOf(this.build.counts); }
-  get additionDone(): boolean { return this.addition.step >= this.addition.digitsA.length; }
+  get additionDone(): boolean { return this.addition.step > this.addition.digitsA.length; }
+  get additionStepLabel(): string {
+    const index = this.addition.digitsA.length - 1 - this.addition.step;
+    return index >= 0 ? places[index].label : 'resultado final';
+  }
+  get additionStepExpected(): number {
+    const index = this.addition.digitsA.length - 1 - this.addition.step;
+    if (this.addition.step === this.addition.digitsA.length) return this.addition.a + this.addition.b;
+    const sum = this.addition.digitsA[index] + this.addition.digitsB[index];
+    return (index === 0 ? sum % 10 : sum) * places[index].value;
+  }
+  get additionAnswerTotal(): number { return this.valueOf(this.additionAnswer); }
+  get additionAnswerCounts(): Counts { return this.additionAnswer; }
+  get additionCarryTens(): number {
+    return Math.floor((this.addition.digitsA[0] + this.addition.digitsB[0]) / 10);
+  }
+  get answerShelfCounts(): Counts {
+    return this.addition.step >= this.addition.digitsA.length ? this.additionAnswerCounts : this.additionStepCounts;
+  }
+  get additionStepCounts(): Counts {
+    const place = this.additionCurrentPlace;
+    if (!place) return this.additionAnswer;
+    return this.additionAnswer;
+  }
+  get additionCurrentPlace(): Place | undefined {
+    const index = this.addition.digitsA.length - 1 - this.addition.step;
+    return index >= 0 ? places[index].key : undefined;
+  }
+  get additionPlaceLimit(): number {
+    const index = this.addition.digitsA.length - 1 - this.addition.step;
+    if (this.addition.step >= this.addition.digitsA.length) {
+      const resultLength = String(this.addition.a + this.addition.b).length;
+      return places[resultLength - 1]?.value ?? 1;
+    }
+    return places[index].value;
+  }
+  get additionPartialValues(): number[] {
+    return this.addition.digitsA.map((digit, index) =>
+      (digit + this.addition.digitsB[index]) * places[index].value).reverse();
+  }
+  get additionPreparedLines(): string[] {
+    const lines: string[] = [];
+    for (let index = this.addition.digitsA.length - 1; index >= 0; index--) {
+      const placeValue = places[index].value;
+      lines.push(`${this.addition.digitsA[index] * placeValue} + ${this.addition.digitsB[index] * placeValue}`);
+    }
+    return lines;
+  }
   get additionCounts(): Counts {
     const counts = this.countsOf(this.addition.a + this.addition.b);
     if (this.addition.step === 0) return this.sumCounts(this.addition.a, this.addition.b);
@@ -77,15 +129,38 @@ export class ExerciseComponent implements OnChanges {
       setTimeout(() => this.newBuild(), 1000);
     }
   }
-  joinAdditionPlace(): void {
-    const index = this.addition.step;
-    const sum = this.addition.digitsA[index] + this.addition.digitsB[index] + this.addition.carry;
-    this.addition.result[index] = sum % 10;
-    this.addition.carry = Math.floor(sum / 10);
+  checkAdditionAnswer(): void {
+    const place = this.additionCurrentPlace;
+    const answer = place ? (this.additionAnswer[place] ?? 0) * places.find((item) => item.key === place)!.value : this.additionAnswerTotal;
+    if (answer !== this.additionStepExpected) {
+      this.feedback = 'Confira a conta e tente novamente.';
+      this.feedbackError = true;
+      return;
+    }
+    this.feedback = '';
+    this.feedbackError = false;
+    if (place === 'units' && this.additionCarryTens > 0) {
+      this.additionAnswer = {
+        ...this.additionAnswer,
+        units: (this.additionAnswer.units ?? 0) % 10,
+        tens: (this.additionAnswer.tens ?? 0) + this.additionCarryTens,
+        carryTens: this.additionCarryTens
+      };
+    }
     this.addition.step++;
-    if (this.addition.step === this.addition.digitsA.length && this.addition.carry) this.addition.result.push(this.addition.carry);
+    if (this.addition.step === this.addition.digitsA.length) {
+      this.additionAnswer = { units: 0, tens: 0 };
+    }
+    if (this.additionDone) this.celebrate();
   }
-  nextAddition(): void { this.celebrate(); this.starEarned.emit(); this.newAddition(); }
+  nextAddition(): void {
+    this.celebrate();
+    this.starEarned.emit();
+    this.resetAdditionAnswer();
+    this.feedback = '';
+    this.feedbackError = false;
+    this.newAddition();
+  }
   subtractPlace(): void {
     const index = this.subtraction.step;
     if (this.subtraction.minuend[index] < this.subtraction.digitsB[index]) this.borrow(index);
@@ -116,6 +191,9 @@ export class ExerciseComponent implements OnChanges {
     const range = this.range(); const a = this.random(range.min, range.max); const b = this.random(range.min, Math.min(range.max, 9999 - a));
     const length = Math.max(String(a).length, String(b).length);
     this.addition = { a, b, digitsA: this.digitsOf(a, length), digitsB: this.digitsOf(b, length), result: Array(length).fill(0), carry: 0, step: 0 };
+    this.resetAdditionAnswer();
+    this.feedback = '';
+    this.feedbackError = false;
   }
   newSubtraction(): void {
     const range = this.range(); const a = this.random(range.min, range.max); const b = this.random(1, a - 1); const length = String(a).length;
@@ -135,6 +213,14 @@ export class ExerciseComponent implements OnChanges {
     const total = this.buildTotal;
     this.build.counts = this.countsOf(total);
   }
+  addAdditionAnswer(place: Place): void {
+    const current = this.additionAnswer[place] ?? 0;
+    this.additionAnswer = { ...this.additionAnswer, [place]: current + 1 };
+    if (this.addition.step >= this.addition.digitsA.length) {
+      this.additionAnswer = this.countsOf(this.additionAnswerTotal);
+    }
+  }
+  resetAdditionAnswer(): void { this.additionAnswer = { units: 0, tens: 0 }; }
   private celebrate(): void {
     this.celebrationVisible = true;
     setTimeout(() => this.celebrationVisible = false, 1100);

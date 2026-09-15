@@ -5,6 +5,7 @@
 .col-count { margin-top:4px; font-size:15px; }
 .block { width:18px; height:18px; border:2px solid var(--gold-edge); border-radius:5px; background:var(--gold); box-shadow:inset 0 -3px 0 rgba(0,0,0,.08); }
 .bar { height:70px; background:repeating-linear-gradient(0deg,var(--amber) 0 6.2px,var(--amber-edge) 6.2px 7.4px); border-color:var(--amber-edge); }
+.carry-bar { background:repeating-linear-gradient(0deg,#63A9E8 0 6.2px,#367FC4 6.2px 7.4px); border-color:#367FC4; }
 .plate {
   width:38px;
   height:38px;

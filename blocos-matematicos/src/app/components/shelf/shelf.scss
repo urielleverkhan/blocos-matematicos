@@ -1,5 +1,6 @@
 .shelf { display:flex; gap:10px; overflow-x:auto; }
 .col { flex:1; min-height:150px; padding:8px 6px 10px; display:flex; flex-direction:column; border:2px solid var(--wood-light); border-radius:14px; background:linear-gradient(180deg,#F4E3C7,#EAD3A8); }
+.thousand-column { min-width:0; overflow:hidden; }
 .col-label,.col-count { color:var(--wood-dark); text-align:center; font:700 13px 'Baloo 2',sans-serif; }
 .col-blocks { flex:1; display:flex; flex-wrap:wrap; align-content:flex-start; justify-content:center; gap:4px; padding-top:6px; }
 .col-count { margin-top:4px; font-size:15px; }
@@ -30,7 +31,7 @@
 .cube-scene {
   width:30px;
   height:30px;
-  margin:5px auto;
+  margin:15px;
   display:block;
   position:relative;
   perspective:140px;
@@ -98,6 +99,42 @@
   justify-items:center;
   gap:4px 2px;
 }
+
+.thousand-column .cube-scene {
+  max-width:100%;
+  margin-left:auto;
+  margin-right:auto;
+}
+.build-layout .thousand-column .col-blocks { transform:translateX(2px); }
+.build-layout .thousand-column .cube-scene {
+  width:27px;
+  height:27px;
+  perspective:128px;
+}
+.build-layout .thousand-column .cube-3d,
+.build-layout .thousand-column .cube-face {
+  width:27px;
+  height:27px;
+}
+.build-layout .thousand-column .cube-face { background-size:7px 7px; }
+.build-layout .thousand-column .cube-front { transform:rotateY(0deg) translateZ(13.5px); }
+.build-layout .thousand-column .cube-back { transform:rotateY(180deg) translateZ(13.5px); }
+.build-layout .thousand-column .cube-right { transform:rotateY(90deg) translateZ(13.5px); }
+.build-layout .thousand-column .cube-left { transform:rotateY(-90deg) translateZ(13.5px); }
+.build-layout .thousand-column .cube-top { transform:rotateX(90deg) translateZ(13.5px); }
+.build-layout .thousand-column .cube-bottom { transform:rotateX(-90deg) translateZ(13.5px); }
+.operation-layout .thousand-column .col-blocks { transform:translateX(-24px); }
+.subtraction-layout .plate { width:27px; height:27px; }
+.subtraction-layout .thousand-column .cube-scene { width:25px; height:25px; perspective:120px; }
+.subtraction-layout .thousand-column .cube-3d,
+.subtraction-layout .thousand-column .cube-face { width:25px; height:25px; }
+.subtraction-layout .thousand-column .cube-face { background-size:6px 6px; }
+.subtraction-layout .thousand-column .cube-front { transform:rotateY(0deg) translateZ(12.5px); }
+.subtraction-layout .thousand-column .cube-back { transform:rotateY(180deg) translateZ(12.5px); }
+.subtraction-layout .thousand-column .cube-right { transform:rotateY(90deg) translateZ(12.5px); }
+.subtraction-layout .thousand-column .cube-left { transform:rotateY(-90deg) translateZ(12.5px); }
+.subtraction-layout .thousand-column .cube-top { transform:rotateX(90deg) translateZ(12.5px); }
+.subtraction-layout .thousand-column .cube-bottom { transform:rotateX(-90deg) translateZ(12.5px); }
 
 .bar-column .col-blocks { gap:5px 3px; }
 .bar-column .col-blocks { grid-template-columns:repeat(3, minmax(0, 1fr)); }

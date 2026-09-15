@@ -11,6 +11,9 @@ export type Counts = { units: number; tens: number; hundreds?: number; thousands
 export class ShelfComponent {
   @Input({ required: true }) counts: Counts = { tens: 0, units: 0 };
   @Input() interactive = false;
+  @Input() operationLayout = false;
+  @Input() buildLayout = false;
+  @Input() subtractionLayout = false;
   @Output() readonly blockRemoved = new EventEmitter<Exclude<keyof Counts, 'carryTens' | 'carryHundreds'>>();
   get columns(): { label: string; count: number; kind: 'unit' | 'ten' | 'hundred' | 'thousand'; carry?: number; carryClass?: boolean }[] {
     const columns: { label: string; count: number; kind: 'unit' | 'ten' | 'hundred' | 'thousand'; carry?: number; carryClass?: boolean }[] = [

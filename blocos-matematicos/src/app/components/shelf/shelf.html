@@ -1,4 +1,4 @@
-<div class="shelf">
+<div class="shelf" [class.operation-layout]="operationLayout" [class.build-layout]="buildLayout" [class.subtraction-layout]="subtractionLayout">
   @for (column of columns; track column.label) {
     <div class="col"
       [class.compact]="column.count > 8 || (column.kind === 'thousand' && column.count > 4)"

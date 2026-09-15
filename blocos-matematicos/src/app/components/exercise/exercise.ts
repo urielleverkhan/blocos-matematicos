@@ -139,14 +139,6 @@ export class ExerciseComponent implements OnChanges {
     }
     this.feedback = '';
     this.feedbackError = false;
-    if (place === 'units' && this.additionCarryTens > 0) {
-      this.additionAnswer = {
-        ...this.additionAnswer,
-        units: (this.additionAnswer.units ?? 0) % 10,
-        tens: (this.additionAnswer.tens ?? 0) + this.additionCarryTens,
-        carryTens: this.additionCarryTens
-      };
-    }
     this.addition.step++;
     if (this.addition.step === this.addition.digitsA.length) {
       this.additionAnswer = { units: 0, tens: 0 };
@@ -216,6 +208,17 @@ export class ExerciseComponent implements OnChanges {
   addAdditionAnswer(place: Place): void {
     const current = this.additionAnswer[place] ?? 0;
     this.additionAnswer = { ...this.additionAnswer, [place]: current + 1 };
+    if (place === 'units' && this.addition.step < this.addition.digitsA.length) {
+      const carriedTens = Math.floor(this.additionAnswer.units / 10);
+      if (carriedTens > 0) {
+        this.additionAnswer = {
+          ...this.additionAnswer,
+          units: this.additionAnswer.units % 10,
+          tens: (this.additionAnswer.tens ?? 0) + carriedTens,
+          carryTens: (this.additionAnswer.carryTens ?? 0) + carriedTens
+        };
+      }
+    }
     if (this.addition.step >= this.addition.digitsA.length) {
       this.additionAnswer = this.countsOf(this.additionAnswerTotal);
     }

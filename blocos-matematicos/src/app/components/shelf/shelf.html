@@ -1,6 +1,10 @@
 <div class="shelf">
   @for (column of columns; track column.label) {
-    <div class="col">
+    <div class="col"
+      [class.compact]="column.count > 8 || (column.kind === 'thousand' && column.count > 4)"
+      [class.thousand-column]="column.kind === 'thousand'"
+      [class.square-column]="column.kind === 'hundred'"
+      [class.bar-column]="column.kind === 'ten'">
       <div class="col-label">{{ column.label }}</div>
       <div class="col-blocks">
         @for (_ of blocks(column.count); track $index) {

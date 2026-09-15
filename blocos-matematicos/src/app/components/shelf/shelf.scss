@@ -3,40 +3,40 @@
 .col-label,.col-count { color:var(--wood-dark); text-align:center; font:700 13px 'Baloo 2',sans-serif; }
 .col-blocks { flex:1; display:flex; flex-wrap:wrap; align-content:flex-start; justify-content:center; gap:4px; padding-top:6px; }
 .col-count { margin-top:4px; font-size:15px; }
-.block { width:20px; height:20px; border:2px solid var(--gold-edge); border-radius:5px; background:var(--gold); box-shadow:inset 0 -3px 0 rgba(0,0,0,.08); }
-.bar { height:78px; background:repeating-linear-gradient(0deg,var(--amber) 0 6.8px,var(--amber-edge) 6.8px 8px); border-color:var(--amber-edge); }
+.block { width:18px; height:18px; border:2px solid var(--gold-edge); border-radius:5px; background:var(--gold); box-shadow:inset 0 -3px 0 rgba(0,0,0,.08); }
+.bar { height:70px; background:repeating-linear-gradient(0deg,var(--amber) 0 6.2px,var(--amber-edge) 6.2px 7.4px); border-color:var(--amber-edge); }
 .plate {
-  width:52px;
-  height:52px;
+  width:38px;
+  height:38px;
   border-color:#3E8F48;
   border-radius:7px;
   background-color:var(--success);
   background-image:
     linear-gradient(#3E8F48 1.5px, transparent 1.5px),
     linear-gradient(90deg, #3E8F48 1.5px, transparent 1.5px);
-  background-size:10px 10px;
+  background-size:8px 8px;
   box-shadow:inset 0 -5px 0 rgba(0,0,0,.1);
 }
 .cube-scene {
-  width:40px;
-  height:40px;
-  margin:8px;
+  width:30px;
+  height:30px;
+  margin:5px auto;
   display:block;
   position:relative;
-  perspective:180px;
+  perspective:140px;
   transform-style:preserve-3d;
 }
 .cube-3d {
-  width:40px;
-  height:40px;
+  width:30px;
+  height:30px;
   position:absolute;
   transform-style:preserve-3d;
   transform:rotateX(-18deg) rotateY(28deg);
 }
 .cube-face {
   position:absolute;
-  width:40px;
-  height:40px;
+  width:30px;
+  height:30px;
   border:2px solid var(--coral-dark);
   box-shadow:inset 0 0 10px rgba(0,0,0,.16);
   backface-visibility:visible;
@@ -45,9 +45,52 @@
     linear-gradient(90deg, rgba(120,35,28,.28) 1px, transparent 1px);
   background-size:8px 8px;
 }
-.cube-front { background-color:var(--coral); transform:rotateY(0deg) translateZ(20px); }
-.cube-back { background-color:#C94736; transform:rotateY(180deg) translateZ(20px); }
-.cube-right { background-color:#D94D3D; transform:rotateY(90deg) translateZ(20px); }
-.cube-left { background-color:#B83D31; transform:rotateY(-90deg) translateZ(20px); }
-.cube-top { background-color:#FF876F; transform:rotateX(90deg) translateZ(20px); }
-.cube-bottom { background-color:#A9362D; transform:rotateX(-90deg) translateZ(20px); }
+.cube-front { background-color:var(--coral); transform:rotateY(0deg) translateZ(15px); }
+.cube-back { background-color:#C94736; transform:rotateY(180deg) translateZ(15px); }
+.cube-right { background-color:#D94D3D; transform:rotateY(90deg) translateZ(15px); }
+.cube-left { background-color:#B83D31; transform:rotateY(-90deg) translateZ(15px); }
+.cube-top { background-color:#FF876F; transform:rotateX(90deg) translateZ(15px); }
+.cube-bottom { background-color:#A9362D; transform:rotateX(-90deg) translateZ(15px); }
+
+.col.compact .col-blocks { gap:3px; }
+.col.compact .block { width:14px; height:14px; border-radius:4px; }
+.col.compact .bar { height:58px; }
+.col.compact .plate {
+  width:30px;
+  height:30px;
+  background-size:6px 6px;
+}
+.col.compact .cube-scene {
+  width:24px;
+  height:24px;
+  margin:4px auto;
+  perspective:120px;
+}
+.col.compact .cube-3d,
+.col.compact .cube-face {
+  width:24px;
+  height:24px;
+}
+.col.compact .cube-face { background-size:6px 6px; }
+.col.compact .cube-front { transform:rotateY(0deg) translateZ(12px); }
+.col.compact .cube-back { transform:rotateY(180deg) translateZ(12px); }
+.col.compact .cube-right { transform:rotateY(90deg) translateZ(12px); }
+.col.compact .cube-left { transform:rotateY(-90deg) translateZ(12px); }
+.col.compact .cube-top { transform:rotateX(90deg) translateZ(12px); }
+.col.compact .cube-bottom { transform:rotateX(-90deg) translateZ(12px); }
+
+.thousand-column .col-blocks,
+.square-column .col-blocks,
+.bar-column .col-blocks {
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  align-content:flex-start;
+  justify-items:center;
+  gap:4px 2px;
+}
+
+.bar-column .col-blocks { gap:5px 3px; }
+.bar-column .col-blocks { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+.bar-column .bar { width:16px; height:58px; }
+.bar-column .col-count { margin-top:6px; }
+.col.bar-column.compact .bar { width:13px; height:48px; }

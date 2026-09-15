@@ -26,7 +26,7 @@ export class ExerciseComponent implements OnChanges {
 
   build = { target: 0, counts: {} as Counts };
   addition = { a: 0, b: 0, digitsA: [] as number[], digitsB: [] as number[], result: [] as number[], carry: 0, step: 0 };
-  subtraction = { a: 0, b: 0, minuend: [] as number[], digitsB: [] as number[], step: 0, removed: 0, borrowed: false, borrowPending: false, borrowAcknowledged: false, borrowedApplied: false };
+  subtraction = { a: 0, b: 0, minuend: [] as number[], digitsB: [] as number[], step: 0, removed: 0, borrowed: false, borrowPending: false, borrowAcknowledged: false, borrowedApplied: false, borrowedStep: -1 };
   feedback = '';
   feedbackError = false;
   subtractionShake = false;
@@ -243,6 +243,7 @@ export class ExerciseComponent implements OnChanges {
     this.subtraction.step++;
     this.subtraction.removed = 0;
     this.subtraction.borrowedApplied = false;
+    this.subtraction.borrowedStep = -1;
     this.subtraction.borrowPending = false;
     this.subtraction.borrowAcknowledged = false;
     this.feedback = '';
@@ -256,7 +257,7 @@ export class ExerciseComponent implements OnChanges {
     }
     const index = this.subtraction.minuend.length - 1 - this.subtraction.step;
     if (index < 0) return;
-    const needsBorrow = !this.subtraction.borrowedApplied &&
+    const needsBorrow = this.subtraction.borrowedStep !== this.subtraction.step &&
       this.subtraction.minuend[index] < (this.subtraction.digitsB[index] ?? 0);
     const hasBorrowSource = this.findBorrowSource(index) !== -1;
     if (needsBorrow && hasBorrowSource) {
@@ -289,6 +290,7 @@ export class ExerciseComponent implements OnChanges {
     this.borrow(currentIndex);
     this.subtraction.borrowPending = false;
     this.subtraction.borrowedApplied = true;
+    this.subtraction.borrowedStep = this.subtraction.step;
     this.feedback = `Agora você pode retirar as ${places[currentIndex].label}s emprestadas.`;
     this.feedbackError = false;
   }
@@ -358,7 +360,7 @@ export class ExerciseComponent implements OnChanges {
   }
   newSubtraction(): void {
     const range = this.range(); const a = this.random(range.min, range.max); const b = this.random(1, a - 1); const length = String(a).length;
-    this.subtraction = { a, b, minuend: this.digitsOf(a, length), digitsB: this.digitsOf(b, length), step: 0, removed: 0, borrowed: false, borrowPending: false, borrowAcknowledged: false, borrowedApplied: false };
+    this.subtraction = { a, b, minuend: this.digitsOf(a, length), digitsB: this.digitsOf(b, length), step: 0, removed: 0, borrowed: false, borrowPending: false, borrowAcknowledged: false, borrowedApplied: false, borrowedStep: -1 };
     this.resetSubtractionAnswer();
     this.feedback = '';
     this.feedbackError = false;

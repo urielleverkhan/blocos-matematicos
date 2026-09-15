@@ -4,7 +4,7 @@ import { Mode } from '../mode-tabs/mode-tabs';
 import { Counts, ShelfComponent } from '../shelf/shelf';
 import { TrailComponent } from '../trail/trail';
 
-type Place = keyof Counts;
+type Place = Exclude<keyof Counts, 'carryTens' | 'carryHundreds'>;
 const places: { key: Place; label: string; value: number }[] = [
   { key: 'units', label: 'unidade', value: 1 },
   { key: 'tens', label: 'dezena', value: 10 },
@@ -35,6 +35,7 @@ export class ExerciseComponent implements OnChanges {
   readonly celebrationStars = [0, 1, 2, 3, 4, 5, 6, 7];
   readonly places = places;
   readonly buildPlaces = places;
+  readonly answerPlaces = [...places].reverse();
 
   ngOnChanges(): void {
     this.feedback = '';
@@ -120,6 +121,12 @@ export class ExerciseComponent implements OnChanges {
     this.normalizeBuild();
   }
   resetBuild(): void { this.build.counts = { units: 0, tens: 0 }; this.feedback = ''; }
+  removeBuildBlock(place: Exclude<keyof Counts, 'carryTens'>): void {
+    const current = this.build.counts[place] ?? 0;
+    if (current === 0) return;
+    this.build.counts = this.countsOf(this.buildTotal - places.find((item) => item.key === place)!.value);
+    this.feedback = '';
+  }
   checkBuild(): void {
     this.feedbackError = this.buildTotal !== this.build.target;
     this.feedback = this.buildTotal === this.build.target ? 'Isso aí! Você montou certinho! 🎉' : this.buildTotal > this.build.target ? 'Passou um pouquinho! Tire alguns blocos.' : 'Quase lá! Ainda falta um pouco.';
@@ -131,7 +138,7 @@ export class ExerciseComponent implements OnChanges {
   }
   checkAdditionAnswer(): void {
     const place = this.additionCurrentPlace;
-    const answer = place ? (this.additionAnswer[place] ?? 0) * places.find((item) => item.key === place)!.value : this.additionAnswerTotal;
+    const answer = place ? this.answerForPlace(place) : this.additionAnswerTotal;
     if (answer !== this.additionStepExpected) {
       this.feedback = 'Confira a conta e tente novamente.';
       this.feedbackError = true;
@@ -219,11 +226,37 @@ export class ExerciseComponent implements OnChanges {
         };
       }
     }
+    if (place === 'tens' && this.addition.step < this.addition.digitsA.length) {
+      const carriedHundreds = Math.floor((this.additionAnswer.tens ?? 0) / 10);
+      if (carriedHundreds > 0) {
+        this.additionAnswer = {
+          ...this.additionAnswer,
+          tens: (this.additionAnswer.tens ?? 0) % 10,
+          hundreds: (this.additionAnswer.hundreds ?? 0),
+          carryHundreds: (this.additionAnswer.carryHundreds ?? 0) + carriedHundreds
+        };
+      }
+    }
     if (this.addition.step >= this.addition.digitsA.length) {
       this.additionAnswer = this.countsOf(this.additionAnswerTotal);
     }
   }
+  removeAdditionAnswer(place: Exclude<keyof Counts, 'carryTens' | 'carryHundreds'>): void {
+    const current = this.additionAnswer[place] ?? 0;
+    if (current === 0) return;
+    const next = { ...this.additionAnswer, [place]: current - 1 };
+    if (place === 'tens' && (next.carryTens ?? 0) > 0) next.carryTens = next.carryTens! - 1;
+    if (place === 'hundreds' && (next.carryHundreds ?? 0) > 0) next.carryHundreds = next.carryHundreds! - 1;
+    this.additionAnswer = next;
+    this.feedback = '';
+    this.feedbackError = false;
+  }
   resetAdditionAnswer(): void { this.additionAnswer = { units: 0, tens: 0 }; }
+  private answerForPlace(place: Place): number {
+    const value = places.find((item) => item.key === place)!.value;
+    const carry = place === 'tens' ? (this.additionAnswer.carryHundreds ?? 0) * 10 : 0;
+    return ((this.additionAnswer[place] ?? 0) + carry) * value;
+  }
   private celebrate(): void {
     this.celebrationVisible = true;
     setTimeout(() => this.celebrationVisible = false, 1100);

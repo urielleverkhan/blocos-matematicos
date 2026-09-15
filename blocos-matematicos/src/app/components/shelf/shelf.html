@@ -9,7 +9,7 @@
       <div class="col-blocks">
         @for (_ of blocks(column.count); track $index) {
           @if (column.kind === 'thousand') {
-            <span class="cube-scene" aria-label="Cubo de milhar">
+            <span class="cube-scene" [class.removable]="interactive" aria-label="Cubo de milhar" (click)="remove(column.kind)">
               <span class="cube-3d">
                 <span class="cube-face cube-front"></span>
                 <span class="cube-face cube-back"></span>
@@ -21,9 +21,12 @@
             </span>
           } @else {
             <span class="block"
+              [class.removable]="interactive"
+              (click)="remove(column.kind)"
               [class.bar]="column.kind === 'ten'"
               [class.carry-bar]="column.kind === 'ten' && column.carry && $index >= column.count - column.carry"
-              [class.plate]="column.kind === 'hundred'"></span>
+              [class.plate]="column.kind === 'hundred'"
+              [class.carry-plate]="column.kind === 'hundred' && column.carry && $index >= column.count - column.carry"></span>
           }
         }
       </div>

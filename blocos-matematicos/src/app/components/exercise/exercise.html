@@ -8,7 +8,7 @@
   }
   @if (mode === 'build') {
     <p class="prompt">Monte o número <span class="target-num">{{ build.target }}</span> com os blocos!</p>
-    <app-shelf [counts]="build.counts" />
+    <app-shelf [counts]="build.counts" [interactive]="true" (blockRemoved)="removeBuildBlock($event)" />
     <app-trail [lines]="[buildTotal + ' = material dourado']" />
     <div class="controls">
       @for (place of buildPlaces; track place.key) {
@@ -40,10 +40,10 @@
         <div class="answer-builder">
           <div class="answer-builder-label">Monte a resposta de {{ additionStepLabel }}:</div>
           <div class="answer-shelf">
-            <app-shelf [counts]="answerShelfCounts"></app-shelf>
+            <app-shelf [counts]="answerShelfCounts" [interactive]="true" (blockRemoved)="removeAdditionAnswer($event)"></app-shelf>
           </div>
           <div class="controls answer-controls">
-            @for (place of buildPlaces; track place.key) {
+            @for (place of answerPlaces; track place.key) {
               @if ((addition.step < addition.digitsA.length && place.key === additionCurrentPlace) ||
                    (addition.step >= addition.digitsA.length && place.value <= additionPlaceLimit)) {
                 <button class="btn secondary" (click)="addAdditionAnswer(place.key)">+1 {{ place.label }}</button>

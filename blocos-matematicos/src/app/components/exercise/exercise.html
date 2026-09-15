@@ -65,11 +65,24 @@
     <div class="feedback" [class.err]="feedbackError">{{ feedback }}</div>
   } @else {
     <p class="prompt">{{ subtraction.a }} − {{ subtraction.b }} = ?</p>
-    <app-shelf [counts]="subtractionCounts" />
-    <app-trail [lines]="subtractionLines" />
+    <app-shelf [counts]="subtractionCounts" [interactive]="true" (blockRemoved)="subtractPlaceFromShelf($event)" />
+    <div class="written-addition">
+      <div class="addition-equation">{{ subtraction.a }} − {{ subtraction.b }} = ?</div>
+      @for (line of subtractionPreparedLines; track $index; let index = $index) {
+        @if (index < subtraction.step) {
+          <div class="addition-line answered">{{ line }} = {{ subtractionAnswer[places[subtraction.minuend.length - 1 - index].key] }}</div>
+        } @else {
+          <div class="addition-line">{{ line }} = <span>?</span></div>
+        }
+      }
+      @if (subtractionDone) {
+        <div class="addition-line total">{{ subtraction.a }} − {{ subtraction.b }} = {{ subtraction.a - subtraction.b }}</div>
+      }
+    </div>
     <div class="controls">
-      @if (subtraction.step < subtraction.minuend.length) {
-        <button class="btn" [class.warn]="subtraction.minuend[subtraction.step] < subtraction.digitsB[subtraction.step]" (click)="subtractPlace()">Tirar {{ subtraction.step === 0 ? 'unidades' : subtraction.step === 1 ? 'dezenas' : subtraction.step === 2 ? 'centenas' : 'milhares' }}</button>
+      @if (!subtractionDone) {
+        <button class="btn" (click)="subtractPlace()">-1 {{ subtractionStepLabel }}</button>
+        <button class="btn success" (click)="checkSubtractionAnswer()">Conferir resposta</button>
       } @else {
         <button class="btn success" (click)="nextSubtraction()">Próxima conta →</button>
       }

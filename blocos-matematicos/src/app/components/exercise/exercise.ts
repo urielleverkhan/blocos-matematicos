@@ -26,12 +26,13 @@ export class ExerciseComponent implements OnChanges {
 
   build = { target: 0, counts: {} as Counts };
   addition = { a: 0, b: 0, digitsA: [] as number[], digitsB: [] as number[], result: [] as number[], carry: 0, step: 0 };
-  subtraction = { a: 0, b: 0, minuend: [] as number[], digitsB: [] as number[], step: 0, borrowed: false };
+  subtraction = { a: 0, b: 0, minuend: [] as number[], digitsB: [] as number[], step: 0, removed: 0, borrowed: false };
   feedback = '';
   feedbackError = false;
   celebrationVisible = false;
   additionInput = '';
   additionAnswer: Counts = { units: 0, tens: 0 };
+  subtractionAnswer: Counts = { units: 0, tens: 0 };
   readonly celebrationStars = [0, 1, 2, 3, 4, 5, 6, 7];
   readonly places = places;
   readonly buildPlaces = places;
@@ -41,6 +42,7 @@ export class ExerciseComponent implements OnChanges {
     this.feedback = '';
     this.additionInput = '';
     this.additionAnswer = { units: 0, tens: 0 };
+    this.subtractionAnswer = { units: 0, tens: 0 };
     if (this.mode === 'build') this.newBuild();
     if (this.mode === 'add') this.newAddition();
     if (this.mode === 'sub') this.newSubtraction();
@@ -106,7 +108,54 @@ export class ExerciseComponent implements OnChanges {
     if (this.additionDone) lines.push(`${this.addition.a} + ${this.addition.b} = ${this.valueOf(this.countsFromDigits(this.addition.result))}`);
     return lines;
   }
-  get subtractionCounts(): Counts { return this.countsFromDigits(this.subtraction.minuend); }
+  get subtractionCounts(): Counts {
+    const digits = [...this.subtraction.minuend];
+    const counts: Counts = { units: digits[0] ?? 0, tens: digits[1] ?? 0 };
+    if (counts.units > 9 && this.subtraction.borrowed && this.subtraction.step === this.subtraction.minuend.length - 1) {
+      counts.carryTens = 1;
+    } else if (counts.units > 9) {
+      const carry = Math.floor(counts.units / 10);
+      counts.units %= 10;
+      counts.tens += carry;
+      counts.carryTens = carry;
+    }
+    if (counts.tens > 9) {
+      const carry = Math.floor(counts.tens / 10);
+      counts.tens %= 10;
+      counts.hundreds = (digits[2] ?? 0) + carry;
+      counts.carryHundreds = carry;
+    } else if (digits.length > 2) {
+      counts.hundreds = digits[2];
+    }
+    if (counts.hundreds !== undefined && counts.hundreds > 9) {
+      counts.hundreds %= 10;
+      counts.thousands = (digits[3] ?? 0) + 1;
+    } else if (digits.length > 3) {
+      counts.thousands = digits[3];
+    }
+    return counts;
+  }
+  get subtractionDone(): boolean { return this.subtraction.step >= this.subtraction.minuend.length; }
+  get subtractionCurrentPlace(): Place | undefined {
+    const index = this.subtraction.minuend.length - 1 - this.subtraction.step;
+    return index >= 0 ? places[index].key : undefined;
+  }
+  get subtractionStepLabel(): string { return this.subtractionCurrentPlace ? places.find((place) => place.key === this.subtractionCurrentPlace)!.label : 'resultado final'; }
+  get subtractionExpected(): number {
+    const index = this.subtraction.minuend.length - 1 - this.subtraction.step;
+    if (index < 0) return this.subtraction.a - this.subtraction.b;
+    const minuend = this.subtraction.minuend[index];
+    const subtrahend = this.subtraction.digitsB[index] ?? 0;
+    return (minuend < subtrahend ? minuend + 10 : minuend) - subtrahend;
+  }
+  get subtractionAnswerTotal(): number { return this.valueOf(this.subtractionAnswer); }
+  get subtractionPreparedLines(): string[] {
+    const originalDigits = this.digitsOf(this.subtraction.a, this.subtraction.minuend.length);
+    return originalDigits.map((digit, index) => {
+      const place = places[index];
+      return `${digit * place.value} - ${(this.subtraction.digitsB[index] ?? 0) * place.value}`;
+    }).reverse();
+  }
   get subtractionLines(): string[] {
     const lines = [`Começamos com ${this.subtraction.a} − ${this.subtraction.b}`];
     if (this.subtraction.borrowed) lines.push('Trocamos uma unidade de ordem maior por 10 da ordem atual! ✨');
@@ -160,12 +209,61 @@ export class ExerciseComponent implements OnChanges {
     this.feedbackError = false;
     this.newAddition();
   }
-  subtractPlace(): void {
-    const index = this.subtraction.step;
-    if (this.subtraction.minuend[index] < this.subtraction.digitsB[index]) this.borrow(index);
-    this.subtraction.minuend[index] -= this.subtraction.digitsB[index];
+  checkSubtractionAnswer(): void {
+    while (this.subtraction.step < this.subtraction.minuend.length &&
+      (this.subtraction.digitsB[this.subtraction.minuend.length - 1 - this.subtraction.step] ?? 0) === 0) {
+      this.subtraction.step++;
+    }
+    const placeIndex = this.subtraction.minuend.length - 1 - this.subtraction.step;
+    if (placeIndex < 0) return;
+    const removed = this.subtraction.removed;
+    const expected = this.subtraction.minuend[placeIndex];
+    const place = places[placeIndex].key;
+    if (removed !== (this.subtraction.digitsB[placeIndex] ?? 0)) {
+      this.feedback = `Retire ${this.subtraction.digitsB[placeIndex] - removed} bloco(s) de ${places[placeIndex].label}.`;
+      this.feedbackError = true;
+      return;
+    }
+    this.subtraction.minuend[placeIndex] = expected;
+    this.subtractionAnswer = { ...this.subtractionAnswer, [place]: expected };
     this.subtraction.step++;
+    this.subtraction.removed = 0;
+    this.feedback = '';
+    this.feedbackError = false;
+    if (this.subtractionDone) this.celebrate();
   }
+  subtractPlace(): void {
+    while (this.subtraction.step < this.subtraction.minuend.length &&
+      (this.subtraction.digitsB[this.subtraction.minuend.length - 1 - this.subtraction.step] ?? 0) === 0) {
+      this.subtraction.step++;
+    }
+    const index = this.subtraction.minuend.length - 1 - this.subtraction.step;
+    if (index < 0) return;
+    if (this.subtraction.removed === 0 && this.subtraction.minuend[index] < (this.subtraction.digitsB[index] ?? 0)) {
+      this.borrow(index);
+    }
+    if (this.subtraction.minuend[index] <= 0) return;
+    this.subtraction.minuend[index]--;
+    this.subtraction.removed++;
+    this.feedback = '';
+    this.feedbackError = false;
+    if (this.subtractionDone) this.celebrate();
+  }
+  subtractPlaceFromShelf(place: Exclude<keyof Counts, 'carryTens' | 'carryHundreds'>): void {
+    if (place === this.subtractionCurrentPlace) this.subtractPlace();
+  }
+  addSubtractionAnswer(place: Place): void {
+    const current = this.subtractionAnswer[place] ?? 0;
+    this.subtractionAnswer = { ...this.subtractionAnswer, [place]: current + 1 };
+  }
+  removeSubtractionAnswer(place: Exclude<keyof Counts, 'carryTens' | 'carryHundreds'>): void {
+    const current = this.subtractionAnswer[place] ?? 0;
+    if (current === 0) return;
+    this.subtractionAnswer = { ...this.subtractionAnswer, [place]: current - 1 };
+    this.feedback = '';
+    this.feedbackError = false;
+  }
+  resetSubtractionAnswer(): void { this.subtractionAnswer = { units: 0, tens: 0 }; }
   nextSubtraction(): void { this.celebrate(); this.starEarned.emit(); this.newSubtraction(); }
 
   private borrow(index: number): void {
@@ -196,7 +294,10 @@ export class ExerciseComponent implements OnChanges {
   }
   newSubtraction(): void {
     const range = this.range(); const a = this.random(range.min, range.max); const b = this.random(1, a - 1); const length = String(a).length;
-    this.subtraction = { a, b, minuend: this.digitsOf(a, length), digitsB: this.digitsOf(b, length), step: 0, borrowed: false };
+    this.subtraction = { a, b, minuend: this.digitsOf(a, length), digitsB: this.digitsOf(b, length), step: 0, removed: 0, borrowed: false };
+    this.resetSubtractionAnswer();
+    this.feedback = '';
+    this.feedbackError = false;
   }
   private digitsOf(value: number, length = String(value).length): number[] { return String(value).padStart(length, '0').split('').reverse().map(Number); }
   private countsOf(value: number): Counts { return this.countsFromDigits(this.digitsOf(value)); }

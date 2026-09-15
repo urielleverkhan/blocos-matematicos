@@ -112,18 +112,25 @@ export class ExerciseComponent implements OnChanges {
   get subtractionCounts(): Counts {
     const digits = [...this.subtraction.minuend];
     const counts: Counts = { units: digits[0] ?? 0, tens: digits[1] ?? 0 };
+    const currentIndex = this.subtraction.minuend.length - 1 - this.subtraction.step;
     if (this.subtraction.borrowPending && this.subtraction.borrowAcknowledged && !this.subtraction.borrowedApplied) {
-      counts.units += 10;
-      counts.tens = Math.max(1, counts.tens);
+      const currentIndex = this.subtraction.minuend.length - 1 - this.subtraction.step;
+      const sourceIndex = this.findBorrowSource(currentIndex);
+      if (sourceIndex !== -1) {
+        const currentPlace = places[currentIndex].key;
+        const sourcePlace = places[sourceIndex].key;
+        counts[currentPlace] = (counts[currentPlace] ?? 0) + 10;
+        counts[sourcePlace] = Math.max(0, (counts[sourcePlace] ?? 0) - 1);
+      }
       return counts;
     }
-    if (counts.units > 9 && !this.subtraction.borrowedApplied) {
+    if (counts.units > 9 && !(this.subtraction.borrowedApplied && currentIndex === 0)) {
       const carry = Math.floor(counts.units / 10);
       counts.units %= 10;
       counts.tens += carry;
       counts.carryTens = carry;
     }
-    if (counts.tens > 9) {
+    if (counts.tens > 9 && !(this.subtraction.borrowedApplied && currentIndex === 1)) {
       const carry = Math.floor(counts.tens / 10);
       counts.tens %= 10;
       counts.hundreds = (digits[2] ?? 0) + carry;
@@ -255,7 +262,7 @@ export class ExerciseComponent implements OnChanges {
     if (needsBorrow && hasBorrowSource) {
       this.subtraction.borrowPending = true;
       this.subtraction.borrowAcknowledged = false;
-      this.feedback = 'Pegue emprestado uma dezena para continuar.';
+      this.feedback = `Pegue emprestado uma ${places[this.findBorrowSource(index)].label} para continuar.`;
       this.feedbackError = true;
       this.subtractionShake = true;
       setTimeout(() => this.subtractionShake = false, 450);
@@ -268,13 +275,21 @@ export class ExerciseComponent implements OnChanges {
     this.feedbackError = false;
     if (this.subtractionDone) this.celebrate();
   }
+  addSubtractionPlace(place: Place): void {
+    if (place !== this.subtractionCurrentPlace || this.subtraction.removed <= 0) return;
+    const index = this.subtraction.minuend.length - 1 - this.subtraction.step;
+    this.subtraction.minuend[index]++;
+    this.subtraction.removed--;
+    this.feedback = '';
+    this.feedbackError = false;
+  }
   applySubtractionBorrow(sourceIndex: number): void {
     const currentIndex = this.subtraction.minuend.length - 1 - this.subtraction.step;
     if (!this.subtraction.borrowPending || !this.subtraction.borrowAcknowledged || sourceIndex !== this.findBorrowSource(currentIndex)) return;
     this.borrow(currentIndex);
     this.subtraction.borrowPending = false;
     this.subtraction.borrowedApplied = true;
-    this.feedback = 'Agora você pode retirar as unidades emprestadas.';
+    this.feedback = `Agora você pode retirar as ${places[currentIndex].label}s emprestadas.`;
     this.feedbackError = false;
   }
   acknowledgeSubtractionBorrow(): void {
@@ -282,14 +297,18 @@ export class ExerciseComponent implements OnChanges {
     this.subtraction.borrowAcknowledged = true;
     const currentIndex = this.subtraction.minuend.length - 1 - this.subtraction.step;
     this.applySubtractionBorrow(this.findBorrowSource(currentIndex));
-    this.feedback = 'Dezena trocada por 10 unidades. Agora retire as unidades.';
+    const currentPlace = this.subtractionCurrentPlace;
+    this.feedback = `${currentPlace ? places.find((place) => place.key === currentPlace)!.label : 'Ordem'} trocada por 10 peças. Agora retire.`;
     this.feedbackError = false;
   }
   subtractPlaceFromShelf(place: Exclude<keyof Counts, 'carryTens' | 'carryHundreds'>): void {
-    if (this.subtraction.borrowPending && this.subtraction.borrowAcknowledged && place === 'tens') {
+    if (this.subtraction.borrowPending && this.subtraction.borrowAcknowledged) {
       const currentIndex = this.subtraction.minuend.length - 1 - this.subtraction.step;
-      this.applySubtractionBorrow(this.findBorrowSource(currentIndex));
-      return;
+      const sourceIndex = this.findBorrowSource(currentIndex);
+      if (sourceIndex !== -1 && place === places[sourceIndex].key) {
+        this.applySubtractionBorrow(sourceIndex);
+        return;
+      }
     }
     if (place === this.subtractionCurrentPlace) this.subtractPlace();
   }

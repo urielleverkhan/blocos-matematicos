@@ -91,6 +91,7 @@
     <div class="controls">
       @if (!subtractionDone) {
         <button class="btn" [class.shake]="subtractionShake" (click)="subtractPlace()">-1 {{ subtractionStepLabel }}</button>
+        <button class="btn secondary" (click)="addSubtractionPlace(subtractionCurrentPlace!)">+1 {{ subtractionStepLabel }}</button>
         @if (subtraction.borrowPending && !subtraction.borrowAcknowledged) {
           <button class="btn success" (click)="acknowledgeSubtractionBorrow()">OK, pegar emprestado</button>
         }

@@ -1,0 +1,42 @@
+<section class="panel">
+  @if (mode === 'build') {
+    <p class="prompt">Monte o número <span class="target-num">{{ build.target }}</span> com os blocos!</p>
+    <app-shelf [counts]="build.counts" />
+    <app-trail [lines]="[buildTotal + ' = material dourado']" />
+    <div class="controls">
+      @for (place of buildPlaces; track place.key) {
+        @if ((place.key === 'units') || (place.key === 'tens') || (place.key === 'hundreds' && build.target >= 100) || (place.key === 'thousands' && build.target >= 1000)) {
+          <button class="btn" (click)="addPlace(place.key)">+1 {{ place.label }}</button>
+        }
+      }
+      <button class="btn warn" (click)="resetBuild()">Recomeçar</button>
+      <button class="btn success" (click)="checkBuild()">Conferir ✓</button>
+    </div>
+    <div class="feedback" [class.err]="feedbackError">{{ feedback }}</div>
+  } @else if (mode === 'add') {
+    <p class="prompt">{{ addition.a }} + {{ addition.b }} = ?</p>
+    <app-shelf [counts]="additionCounts" />
+    <app-trail [lines]="additionLines" />
+    <div class="controls">
+      @if (!additionDone) {
+        <button class="btn" (click)="joinAdditionPlace()">Juntar {{ addition.step === 0 ? 'unidades' : addition.step === 1 ? 'dezenas' : addition.step === 2 ? 'centenas' : 'milhares' }}</button>
+      } @else {
+        <button class="btn success" (click)="nextAddition()">Próxima conta →</button>
+      }
+      <button class="btn secondary" (click)="newAddition()">Nova conta</button>
+    </div>
+  } @else {
+    <p class="prompt">{{ subtraction.a }} − {{ subtraction.b }} = ?</p>
+    <app-shelf [counts]="subtractionCounts" />
+    <app-trail [lines]="subtractionLines" />
+    <div class="controls">
+      @if (subtraction.step < subtraction.minuend.length) {
+        <button class="btn" [class.warn]="subtraction.minuend[subtraction.step] < subtraction.digitsB[subtraction.step]" (click)="subtractPlace()">Tirar {{ subtraction.step === 0 ? 'unidades' : subtraction.step === 1 ? 'dezenas' : subtraction.step === 2 ? 'centenas' : 'milhares' }}</button>
+      } @else {
+        <button class="btn success" (click)="nextSubtraction()">Próxima conta →</button>
+      }
+      <button class="btn secondary" (click)="newSubtraction()">Nova conta</button>
+    </div>
+    <div class="feedback err">{{ feedback }}</div>
+  }
+</section>

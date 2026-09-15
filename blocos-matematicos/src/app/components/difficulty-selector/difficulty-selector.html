@@ -1,0 +1,6 @@
+<div class="diffs" aria-label="Dificuldade">
+  @for (option of options; track option.value) {
+    <button class="diff" [class.active]="activeDifficulty === option.value"
+      (click)="difficultyChange.emit(option.value)">{{ option.label }}</button>
+  }
+</div>

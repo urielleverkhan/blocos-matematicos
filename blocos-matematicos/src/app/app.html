@@ -1,0 +1,7 @@
+<main class="app-shell">
+  <app-header [stars]="stars()" />
+  <app-mode-tabs [activeMode]="mode()" (modeChange)="setMode($event)" />
+  <app-difficulty-selector [activeDifficulty]="difficulty()" (difficultyChange)="setDifficulty($event)" />
+  <app-exercise [mode]="mode()" [difficulty]="difficulty()" (starEarned)="awardStar()" />
+  <footer>Toque nos blocos para montar as quantidades — quando 10 unidades se juntam, elas viram 1 dezena! ✨</footer>
+</main>

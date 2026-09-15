@@ -1,0 +1,5 @@
+.hero { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.mascot { width:56px; height:56px; flex-shrink:0; }
+h1 { margin:0; color:var(--wood-dark); font:700 26px/1.05 'Baloo 2',sans-serif; }
+p { margin:2px 0 0; color:var(--ink-soft); font-size:13.5px; font-weight:600; }
+.stars { margin-left:auto; display:flex; align-items:center; gap:4px; white-space:nowrap; padding:6px 10px; border:2px solid var(--wood-light); border-radius:14px; background:var(--paper); color:var(--wood-dark); font:700 15px 'Baloo 2',sans-serif; }

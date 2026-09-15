@@ -1,0 +1,4 @@
+.tabs { display:flex; gap:8px; margin-bottom:12px; }
+.tab { flex:1; padding:11px 4px; border:0; border-radius:14px; background:var(--wood-light); color:var(--wood-dark); box-shadow:0 4px 0 #C99257; cursor:pointer; font:700 14.5px 'Baloo 2',sans-serif; }
+.tab.active { background:var(--teal); color:#fff; box-shadow:0 4px 0 var(--teal-dark); }
+.tab:active { transform:translateY(3px); box-shadow:none; }

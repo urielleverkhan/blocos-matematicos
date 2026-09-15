@@ -1,0 +1,16 @@
+<div class="shelf">
+  @for (column of columns; track column.label) {
+    <div class="col">
+      <div class="col-label">{{ column.label }}</div>
+      <div class="col-blocks">
+        @for (_ of blocks(column.count); track $index) {
+          <span class="block"
+            [class.bar]="column.kind === 'ten'"
+            [class.plate]="column.kind === 'hundred'"
+            [class.thousand-cube]="column.kind === 'thousand'"></span>
+        }
+      </div>
+      <div class="col-count">{{ column.count }}</div>
+    </div>
+  }
+</div>

@@ -1,0 +1,3 @@
+.diffs { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.diff { padding:6px 12px; border:2px solid var(--wood-light); border-radius:20px; background:var(--paper); color:var(--ink-soft); cursor:pointer; font:700 12.5px 'Nunito',sans-serif; }
+.diff.active { border-color:var(--coral-dark); background:var(--coral); color:#fff; }

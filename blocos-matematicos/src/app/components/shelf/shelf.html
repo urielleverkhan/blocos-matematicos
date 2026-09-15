@@ -4,10 +4,22 @@
       <div class="col-label">{{ column.label }}</div>
       <div class="col-blocks">
         @for (_ of blocks(column.count); track $index) {
-          <span class="block"
-            [class.bar]="column.kind === 'ten'"
-            [class.plate]="column.kind === 'hundred'"
-            [class.thousand-cube]="column.kind === 'thousand'"></span>
+          @if (column.kind === 'thousand') {
+            <span class="cube-scene" aria-label="Cubo de milhar">
+              <span class="cube-3d">
+                <span class="cube-face cube-front"></span>
+                <span class="cube-face cube-back"></span>
+                <span class="cube-face cube-right"></span>
+                <span class="cube-face cube-left"></span>
+                <span class="cube-face cube-top"></span>
+                <span class="cube-face cube-bottom"></span>
+              </span>
+            </span>
+          } @else {
+            <span class="block"
+              [class.bar]="column.kind === 'ten'"
+              [class.plate]="column.kind === 'hundred'"></span>
+          }
         }
       </div>
       <div class="col-count">{{ column.count }}</div>

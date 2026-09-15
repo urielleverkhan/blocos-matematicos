@@ -69,7 +69,7 @@
       <div class="addition-equation">{{ subtraction.a }} − {{ subtraction.b }} = ?</div>
       @for (line of subtractionPreparedLines; track $index; let index = $index) {
         @if (index < subtraction.step) {
-          <div class="addition-line answered">{{ line }} = {{ subtractionAnswer[places[subtraction.minuend.length - 1 - index].key] }}</div>
+          <div class="addition-line answered">{{ line }} = {{ (subtractionAnswer[places[subtraction.minuend.length - 1 - index].key] ?? 0) * places[subtraction.minuend.length - 1 - index].value }}</div>
         } @else {
           <div class="addition-line"
             [class.borrow-source]="subtraction.borrowPending && subtraction.borrowAcknowledged && index === subtraction.step"
@@ -99,6 +99,7 @@
       } @else {
         <button class="btn success" (click)="nextSubtraction()">Próxima conta →</button>
       }
+      <button class="btn warn" (click)="resetSubtraction()">Recomeçar</button>
       <button class="btn secondary" (click)="newSubtraction()">Nova conta</button>
     </div>
     <div class="feedback err">{{ feedback }}</div>

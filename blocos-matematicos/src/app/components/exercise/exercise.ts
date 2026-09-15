@@ -326,6 +326,20 @@ export class ExerciseComponent implements OnChanges {
     this.feedbackError = false;
   }
   resetSubtractionAnswer(): void { this.subtractionAnswer = { units: 0, tens: 0 }; }
+  resetSubtraction(): void {
+    this.subtraction.minuend = this.digitsOf(this.subtraction.a, this.subtraction.digitsB.length);
+    this.subtraction.step = 0;
+    this.subtraction.removed = 0;
+    this.subtraction.borrowed = false;
+    this.subtraction.borrowPending = false;
+    this.subtraction.borrowAcknowledged = false;
+    this.subtraction.borrowedApplied = false;
+    this.subtraction.borrowedStep = -1;
+    this.resetSubtractionAnswer();
+    this.feedback = '';
+    this.feedbackError = false;
+    this.subtractionShake = false;
+  }
   nextSubtraction(): void { this.celebrate(); this.starEarned.emit(); this.newSubtraction(); }
 
   private borrow(index: number): void {

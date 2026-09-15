@@ -71,7 +71,11 @@
         @if (index < subtraction.step) {
           <div class="addition-line answered">{{ line }} = {{ subtractionAnswer[places[subtraction.minuend.length - 1 - index].key] }}</div>
         } @else {
-          <div class="addition-line">{{ line }} = <span>?</span></div>
+          <div class="addition-line"
+            [class.borrow-source]="subtraction.borrowPending && subtraction.borrowAcknowledged && index === subtraction.step"
+            (click)="applySubtractionBorrow(subtraction.minuend.length - 1 - index)">
+            {{ line }} = <span>?</span>
+          </div>
         }
       }
       @if (subtractionDone) {
@@ -86,7 +90,10 @@
     </div>
     <div class="controls">
       @if (!subtractionDone) {
-        <button class="btn" (click)="subtractPlace()">-1 {{ subtractionStepLabel }}</button>
+        <button class="btn" [class.shake]="subtractionShake" (click)="subtractPlace()">-1 {{ subtractionStepLabel }}</button>
+        @if (subtraction.borrowPending && !subtraction.borrowAcknowledged) {
+          <button class="btn success" (click)="acknowledgeSubtractionBorrow()">OK, pegar emprestado</button>
+        }
         <button class="btn success" (click)="checkSubtractionAnswer()">Conferir resposta</button>
       } @else {
         <button class="btn success" (click)="nextSubtraction()">Próxima conta →</button>

@@ -16,6 +16,13 @@
 .addition-line.answered { color:var(--success); }
 .addition-line.recombination { margin-top:12px; color:var(--coral-dark); font-size:19px; }
 .addition-line.total { color:var(--success); font-size:20px; }
+.addition-line.borrow-source { color:var(--teal); cursor:pointer; text-decoration:underline; }
+.btn.shake { animation:shake-button .45s ease-in-out; }
+@keyframes shake-button {
+  0%, 100% { transform:translateX(0); }
+  25% { transform:translateX(-5px); }
+  75% { transform:translateX(5px); }
+}
 .answer-builder { margin-top:12px; padding-top:10px; border-top:2px dashed var(--wood-light); }
 .answer-builder-label { color:var(--wood-dark); font:700 14px 'Nunito',sans-serif; text-align:center; }
 .answer-shelf { display:block; min-height:150px; margin-top:8px; }
